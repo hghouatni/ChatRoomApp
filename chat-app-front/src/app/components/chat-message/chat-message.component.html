@@ -1,0 +1,94 @@
+<div class="flex flex-col w-full h-screen bg-white">
+  <div *ngIf="!user" class="flex flex-grow justify-center items-center text-center bg-gray-50 p-6">
+    <div class="space-y-6">
+      <!-- Main Heading -->
+      <h1 class="text-2xl font-semibold text-gray-800">Select a User to Start Chatting</h1>
+      <!-- Description Text -->
+      <p class="text-gray-500 text-sm">Please choose a user from the list to begin your conversation. Start a chat and stay connected.</p>
+      
+      <div class="mt-6">
+        <img src="/assets/images/start.png" alt="Start Chat Image" class="mx-auto opacity-70">
+      </div>
+    </div>
+  </div>
+  
+
+  <div *ngIf="user" class="flex flex-col flex-grow overflow-hidden">
+    <div class="bg-gray-100 px-6 py-4 flex items-center justify-between shadow-sm">
+      <div class="flex items-center space-x-4">
+        <div class="w-12 h-12 rounded-full bg-indigo-500 flex items-center justify-center text-white font-bold">
+          {{ user.name.charAt(0).toUpperCase() }}
+        </div>        
+        <div>
+          <h2 class="text-lg font-semibold text-gray-800">{{ user.name.toUpperCase() }}</h2>
+          <p class="text-xs text-gray-500">Online</p>
+        </div>
+      </div>
+      <div class="flex space-x-4">
+        <button class="text-gray-500 hover:text-indigo-600 transition">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="flex-grow overflow-y-auto p-6 space-y-4 bg-gray-50" #messagesContainer>
+      <div *ngFor="let message of messages" class="flex" 
+           [ngClass]="{'flex-row-reverse': !message.isUser2}">
+        <div class="flex flex-col max-w-[70%]">
+          <div class="flex items-center space-x-2" 
+               [ngClass]="{'flex-row-reverse': !message.isUser2}">
+            <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm"
+                 [ngClass]="{
+                   'bg-indigo-500': message.isUser2, 
+                   'bg-green-500 ml-2': !message.isUser2
+                 }">
+              {{ message.senderInitial }}
+            </div>
+            <div class="rounded-2xl px-4 py-2 max-w-full break-words"
+                 [ngClass]="{
+                   'bg-white shadow-sm ': message.isUser2, 
+                   'bg-indigo-500 text-white': !message.isUser2
+                 }">
+              {{ message.text }}
+            </div>
+          </div>
+          <div class="text-xs text-gray-500 mt-1 mx-2"
+               [ngClass]="{'text-right': !message.isUser2}">
+               {{ message.timestamp | date: (isToday(message.timestamp) ? 'shortTime' : 'medium') }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white border-t p-4">
+      <div class="flex items-center space-x-4">
+        <button class="text-gray-500 hover:text-indigo-600 transition">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+          </svg>
+        </button>
+        
+        <div class="flex-grow">
+          <input 
+            [(ngModel)]="messageContent"
+            (keyup.enter)="sendMessage()"
+            type="text" 
+            placeholder="Type a message..." 
+            class="w-full px-4 py-2 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          >
+        </div>
+
+        <button 
+          (click)="sendMessage()"
+          class="bg-indigo-500 text-white rounded-full p-2 hover:bg-indigo-600 transition disabled:opacity-50"
+          [disabled]="!messageContent.trim()">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
