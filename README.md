@@ -26,6 +26,7 @@ Nous réalisons une application de chatroom pour assurer une communication en te
 - **Base de données** : MySQL
 - **Communication en temps réel** : Socket.io
 - **Authentification** : JWT (JSON Web Tokens)
+- Git & GitHub pour la gestion de version
 
 ## Copyright
 &copy; 2025 ChatApp. Tous droits réservés.
