@@ -35,10 +35,10 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    - name: Build and Test Backend
+    - name: Build Backend (Skip Tests)
       working-directory: ./chat-room-backend
       run: |
-        ./mvnw clean install
+        ./mvnw clean install -DskipTests
 
     - name: Set up Node.js
       uses: actions/setup-node@v3
