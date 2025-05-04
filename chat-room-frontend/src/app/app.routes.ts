@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 import { SignUpComponent } from './components/Auth/sign-up/sign-up.component';
 import { SignInComponent } from './components/Auth/sign-in/sign-in.component';
 import { AuthGuard } from './guards/auth.guard';
+import { ChatComponent } from './components/chat/chat.component';
 
 export const routes: Routes = [
   {
@@ -12,6 +13,11 @@ export const routes: Routes = [
   {
     path: 'login',
     component: SignInComponent,
+  },
+  {
+    path: 'chat',
+    component: ChatComponent,
+    canActivate: [AuthGuard],
   },
   {
     path: '',
