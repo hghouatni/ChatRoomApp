@@ -9,7 +9,7 @@ import { AuthService } from './auth.service';
 })
 export class UserService {
 
-  private apiUrl = 'http://127.0.0.1:8080/api/users';
+  private apiUrl = 'http://127.0.0.1:8090/api/users';
 
   constructor(
     private http: HttpClient,
