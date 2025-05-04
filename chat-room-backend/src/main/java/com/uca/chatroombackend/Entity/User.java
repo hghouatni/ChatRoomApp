@@ -40,6 +40,7 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Column(columnDefinition = "datetime")
     private LocalDateTime createdAt = LocalDateTime.now();
 
     public User(String email, String username, String password, String role) {
