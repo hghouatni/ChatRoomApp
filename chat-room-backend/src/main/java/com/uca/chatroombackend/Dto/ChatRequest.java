@@ -19,4 +19,3 @@ public class ChatRequest {
         this.user2Id = user2Id;
     }
 }
-

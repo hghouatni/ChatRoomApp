@@ -8,6 +8,7 @@ public class MessageRequest {
     private Long receiverId;
     private String content;
     private Date timestamp;
+    private String type = "text"; // Default is text, can be "text", "image", or "audio"
 
     // Getters and setters
     public Long getSenderId() {
@@ -40,5 +41,13 @@ public class MessageRequest {
 
     public void setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }
