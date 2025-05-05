@@ -11,6 +11,7 @@ import com.uca.chatroombackend.Exception.UserNotFoundException;
 import com.uca.chatroombackend.Repository.UserRepository;
 import com.uca.chatroombackend.Service.Authentication.UserService;
 import com.uca.chatroombackend.Service.Chat.ChatService;
+import com.uca.chatroombackend.Service.Media.MediaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,9 +19,15 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/chats")
@@ -34,6 +41,12 @@ public class ChatController {
 
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
+
+    @Autowired
+    private MediaService mediaService;
+
+    @Autowired
+    private UserService userService;
 
     public ChatController(UserService userService, ChatService chatService) {
         this.chatService = chatService;
@@ -88,6 +101,65 @@ public class ChatController {
 
         // Return HTTP response
         return new ResponseEntity<>(savedMessage, HttpStatus.OK);
+    }
+
+    @PostMapping("/media/{chatId}")
+    public ResponseEntity<Map<String, Object>> uploadMedia(
+            @PathVariable int chatId,
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("senderId") Long senderId,
+            @RequestParam("receiverId") Long receiverId,
+            @RequestParam("timestamp") String timestampStr,
+            @RequestParam("type") String type) {
+
+        try {
+            // Parse timestamp
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+            Date timestamp = format.parse(timestampStr);
+
+            // Store the file and get its URL
+            String mediaUrl = mediaService.storeFile(file, type);
+
+            // Create message entity
+            Message message = new Message();
+            User sender = userService.getUserById(senderId);
+            User receiver = userService.getUserById(receiverId);
+
+            message.setSender(sender);
+            message.setReceiver(receiver);
+            message.setTimestamp(timestamp);
+            message.setType(type);
+            message.setMediaUrl(mediaUrl);
+
+            // Set appropriate content based on type
+            if ("image".equals(type)) {
+                message.setContent("Image");
+            } else if ("audio".equals(type)) {
+                message.setContent("Audio message");
+            }
+
+            // Add message to chat
+            Message savedMessage = chatService.addMessage(message, chatId);
+
+            // Prepare response
+            Map<String, Object> response = new HashMap<>();
+            response.put("id", savedMessage.getId());
+            response.put("content", savedMessage.getContent());
+            response.put("timestamp", savedMessage.getTimestamp());
+            response.put("type", savedMessage.getType());
+            response.put("sender", savedMessage.getSender());
+            response.put("mediaUrl", savedMessage.getMediaUrl());
+
+            return ResponseEntity.ok(response);
+        } catch (ChatNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to upload file: " + e.getMessage()));
+        } catch (ParseException e) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Invalid timestamp format: " + e.getMessage()));
+        }
     }
 
     @GetMapping("/user/{username}")

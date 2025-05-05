@@ -1,6 +1,5 @@
 package com.uca.chatroombackend.Entity;
 
-
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -20,22 +19,27 @@ public class Message {
 
     @ManyToOne
     @JoinColumn(name = "sender_id", nullable = false)
-    private User sender;  // Changed to link to User
+    private User sender;
 
     @ManyToOne
     @JoinColumn(name = "receiver_id", nullable = false)
-    private User receiver;  // Added receiver to link to User
+    private User receiver;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(nullable = false)
+    @Column(columnDefinition = "datetime")
     private Date timestamp = new Date(System.currentTimeMillis());
 
     @Column(nullable = false)
-    private String content;  // Changed from "replyMessage" to "content"
+    private String content;
+
+    @Column(name = "message_type")
+    private String type = "text";
+
+    @Column(name = "media_url")
+    private String mediaUrl;
 
     @ManyToOne
     @JsonBackReference
     @JoinColumn(name = "chat_id", nullable = false)
     private Chat chat;
-
 }
