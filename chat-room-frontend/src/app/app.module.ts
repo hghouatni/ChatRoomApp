@@ -1,3 +1,4 @@
+// filepath: /Users/macbook/Developer/ChatRoomApp/chat-room-frontend/src/app/app.module.ts
 import { NgModule } from '@angular/core';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app.routes';
@@ -7,13 +8,18 @@ import { FormsModule } from '@angular/forms';
 import { SignUpComponent } from './components/Auth/sign-up/sign-up.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
-import { provideToastr, ToastrModule } from 'ngx-toastr';
-import { BrowserAnimationsModule, provideAnimations } from '@angular/platform-browser/animations';
+import { ToastrModule } from 'ngx-toastr';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { SignInComponent } from './components/Auth/sign-in/sign-in.component';
 import { ClickOutsideDirective } from './click-outside-directive.directive';
 import { UserListComponent } from './components/user-list/user-list.component';
 import { ChatComponent } from './components/chat/chat.component';
 import { ChatMessageComponent } from './components/chat-message/chat-message.component';
+import { AuthService } from './services/auth.service';
+import { UserService } from './services/user.service';
+import { ChatService } from './services/chat.service';
+import { WebSocketService } from './services/websocket.service';
+import { MediaService } from './services/media.service';
 
 @NgModule({
   declarations: [
@@ -23,7 +29,7 @@ import { ChatMessageComponent } from './components/chat-message/chat-message.com
     ChatComponent,
     UserListComponent,
     ChatMessageComponent,
-    ClickOutsideDirective
+    ClickOutsideDirective,
   ],
   imports: [
     BrowserModule,
@@ -33,12 +39,15 @@ import { ChatMessageComponent } from './components/chat-message/chat-message.com
     HttpClientModule,
     BrowserAnimationsModule,
     FormsModule,
-    ToastrModule.forRoot(),
+    ToastrModule.forRoot()
   ],
   providers: [
-    provideAnimations(),
-    provideToastr(), 
+    AuthService,
+    UserService,
+    ChatService,
+    WebSocketService,
+    MediaService,
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}
