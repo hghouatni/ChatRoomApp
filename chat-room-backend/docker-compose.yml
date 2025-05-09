@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  backend:
+    build: .
+    ports:
+      - "8090:8090"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_DATABASE=chat-room
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=123
+      - JWT_SECRET=votreclésecrete123456789
+    depends_on:
+      - mysql
+    networks:
+      - chat-network
+    restart: always
+
+  mysql:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root_password
+      - MYSQL_DATABASE=chat-room
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - chat-network
+    restart: always
+
+networks:
+  chat-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
