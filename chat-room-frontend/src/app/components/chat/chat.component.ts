@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { UserService } from '../../services/user.service';
 import { ChatService } from '../../services/chat.service';
 import { WebSocketService } from '../../services/websocket.service';
-import { Subscription, timestamp } from 'rxjs';
+import { last, Subscription, timestamp } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { ChatMessageComponent } from '../chat-message/chat-message.component';
 import { Router } from '@angular/router';
@@ -21,7 +21,15 @@ export class ChatComponent implements OnInit, OnDestroy {
   user1Id: number = 0;
   user2Id: number = 0;
   chatId: number = 0;
-  chatMessages: { senderInitial: string, text: string, status: string, isUser2: boolean, timestamp: number}[] = [];
+  chatMessages: { 
+    senderInitial: string, 
+    text: string, 
+    status: string, 
+    isUser2: boolean, 
+    timestamp: number,
+    type?: string,
+    mediaUrl?: string
+  }[] = [];
 
   secondUser: any;
   
@@ -137,7 +145,9 @@ export class ChatComponent implements OnInit, OnDestroy {
             text: msg.content,
             timestamp: msg.timestamp,
             status: 'Seen',
-            isUser2: msg.sender.id !== this.user1Id
+            isUser2: msg.sender.id !== this.user1Id,
+            type: msg.type || 'text',
+            mediaUrl: msg.mediaUrl
           }));
         },
         (error) => {
@@ -151,7 +161,8 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.websocketService.sendMessage({ 
       senderId: this.user1Id,
       receiverId: this.user2Id,
-      content: newMessage.text
+      content: newMessage.text,
+      type: newMessage.type || 'text'
     });
 
     const formattedMessage = {
@@ -160,9 +171,12 @@ export class ChatComponent implements OnInit, OnDestroy {
       timestamp: newMessage.timestamp,
       status: 'Sent',
       isUser2: false,
+      type: newMessage.type || 'text',
+      mediaUrl: newMessage.mediaUrl
     };
     
     this.chatMessages.push(formattedMessage);
+    this.loadActiveChats();
   }
 
   private processReceivedMessage(newMessage: any): void {
@@ -171,7 +185,9 @@ export class ChatComponent implements OnInit, OnDestroy {
       text: newMessage.content,
       timestamp: newMessage.timestamp,
       status: 'Seen',
-      isUser2: newMessage.senderId !== this.user1Id
+      isUser2: newMessage.sender.id !== this.user1Id,
+      type: newMessage.type || 'text',
+      mediaUrl: newMessage.mediaUrl
     };
     
     console.log('Adding message to chat:', formattedMessage);
@@ -179,28 +195,37 @@ export class ChatComponent implements OnInit, OnDestroy {
   }
 
   loadActiveChats(): void {
-        this.chatService.getAllChats().subscribe(
+    this.chatService.getAllChats().subscribe(
       (chats) => {
         this.activeChatUsers = chats
           .filter((chat: any) => chat.messageList && chat.messageList.length > 0)
           .map((chat: any) => {
             const otherUser = chat.firstUser.id === this.user1Id ? chat.secondUser : chat.firstUser;
             const lastMessage = chat.messageList[chat.messageList.length - 1];
+            
+            let messagePreview = lastMessage?.content || '';
+            
+            if (lastMessage?.type === 'image') {
+              messagePreview = '📷 Image';
+            } else if (lastMessage?.type === 'audio') {
+              messagePreview = '🎵 Audio message';
+            }
+            
             return {
               ...otherUser,
-              lastMessage: lastMessage,
+              lastMessage: {
+                ...lastMessage,
+                content: messagePreview
+              },
               lastMessageTimestamp: lastMessage?.timestamp
             };
           })
           .sort((a:any, b:any) => b.lastMessageTimestamp - a.lastMessageTimestamp)
           .slice(0, 5);
-          console.log(this.activeChatUsers);
       },
       (error) => {
         console.error('Error loading active chats:', error);
       }
-      
-      
     );
   }
 
