@@ -11,7 +11,7 @@ services:
       - MYSQL_PORT=3306
       - MYSQL_DATABASE=chat-room
       - MYSQL_USER=root
-      - MYSQL_PASSWORD=123
+      - MYSQL_PASSWORD=
       - JWT_SECRET=votreclésecrete123456789
     depends_on:
       - mysql
