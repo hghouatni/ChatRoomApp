@@ -7,15 +7,12 @@ pipeline {
     }
     
     stages {
-        // Suppression de l'étape Checkout car Jenkins fait déjà un checkout initial
-        // pour obtenir le Jenkinsfile, et nous ne voulons pas recheckout une autre branche
-        
         stage('Build Frontend') {
             steps {
-                dir('frontend') {
-                    // Use bat for Windows instead of sh
+                dir('chat-room-frontend') {
+                    // Utiliser bat pour Windows
                     bat 'npm install'
-                    // Assuming Angular CLI is installed globally or available via npx
+                    // Construction de l'application Angular
                     bat 'npx ng build --configuration production'
                 }
             }
@@ -23,34 +20,37 @@ pipeline {
         
         stage('Build Backend') {
             steps {
-                dir('backend') {
-                    // Use bat for Windows and mvnw.cmd instead of ./mvnw
-                    bat 'mvnw.cmd clean install'
+                dir('chat-room-backend') {
+                    // Utiliser mvnw.cmd pour Windows
+                    bat 'mvnw.cmd clean install || mvn clean install'
                 }
             }
         }
         
         stage('Tests Backend') {
             steps {
-                dir('backend') {
-                    bat 'mvnw.cmd test'
+                dir('chat-room-backend') {
+                    bat 'mvnw.cmd test || mvn test'
                 }
             }
         }
         
         stage('Deploy') {
             steps {
-                echo 'Fake deploy step (to be replaced)'
+                echo 'Étape de déploiement factice (à remplacer ultérieurement)'
             }
         }
     }
     
     post {
+        always {
+            echo 'Nettoyage et finalisation'
+        }
         success {
-            echo 'Pipeline completed successfully!'
+            echo 'Pipeline terminé avec succès!'
         }
         failure {
-            echo 'Pipeline failed!'
+            echo 'Pipeline échoué!'
         }
     }
 }
