@@ -2,17 +2,13 @@ pipeline {
     agent any
     
     tools {
-        nodejs "NodeJS 24.0.2"
-        maven "Maven 3.9.9"
+        nodejs "NodeJS"
+        maven "Maven"
     }
     
     stages {
-        stage('Checkout') {
-            steps {
-                // Explicitly specify the branch to checkout
-                git branch: 'master', url: 'https://github.com/hghouatni/ChatRoomApp'
-            }
-        }
+        // Suppression de l'étape Checkout car Jenkins fait déjà un checkout initial
+        // pour obtenir le Jenkinsfile, et nous ne voulons pas recheckout une autre branche
         
         stage('Build Frontend') {
             steps {
