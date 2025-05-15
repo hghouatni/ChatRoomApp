@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     tools {
-        nodejs "NodeJS"     // Doit être défini dans Jenkins > Tools
-        maven "Maven 3.8"   // Pareil ici
+        nodejs "NodeJS 24.0.2"
+        maven  "Maven  3.9.9"
     }
 
     stages {
@@ -17,7 +17,7 @@ pipeline {
             steps {
                 dir('frontend') {
                     sh 'npm install'
-                    sh 'ng build --prod'  // Ne bloque pas le pipeline
+                    sh 'ng build --configuration production'
                 }
             }
         }
@@ -26,7 +26,6 @@ pipeline {
             steps {
                 dir('backend') {
                     sh './mvnw clean install'
-                    sh './mvnw spring-boot:run &'
                 }
             }
         }
@@ -41,7 +40,7 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                echo 'Déploiement fictif ici'
+                echo 'Fake deploy step (to be replaced)'
             }
         }
     }
